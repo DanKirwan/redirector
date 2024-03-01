@@ -9,13 +9,19 @@ export function GET(request: Request) {
     // Split the 'redirects' parameter into an array of strings if it exists
     // If 'redirects' is not provided, default to an empty array
     const redirects = redirectsParam ? redirectsParam.split(",") : [];
+    const randomIndex = redirects.length > 0 ? Math.floor(Math.random() * redirects.length) : -1;
 
-    const randomChoice = redirects.length > 0 ? redirects[Math.floor(Math.random() * redirects.length)] : null;
+    if (randomIndex === -1) {
+        // If there are no redirects, return a message or handle as needed
+        return new Response("No redirect URLs provided", {
+            status: 400, // Bad Request
+            headers: {
+                'Content-Type': 'text/plain',
+            },
+        });
+    } else {
+        const selectedRedirectUrl = decodeURIComponent(redirects[randomIndex]);
 
-    // Return the list of redirects as a JSON response
-    return new Response(JSON.stringify(redirects), {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+        return Response.redirect(selectedRedirectUrl, 302); // Use a 302 Found status code for temporary redirection
+    }
 }
